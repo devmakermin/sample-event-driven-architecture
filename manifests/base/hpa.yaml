@@ -1,0 +1,24 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sampleserver-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sampleserver  # 위에서 만든 Deployment 이름
+  minReplicas: 1  # 최소 Pod 개수
+  maxReplicas: 5  # 최대 Pod 개수
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50  # CPU 사용률이 50% 초과하면 스케일링
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 75  # 메모리 사용률이 75% 초과하면 스케일링

@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleserver
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: sampleserver
+        image: registry.sample.kr/sampleserver/sample:1.0.0-dev
+        resources:
+          limits:
+            memory: "1Gi"

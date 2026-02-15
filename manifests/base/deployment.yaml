@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleServer
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: sampleserver
+  template:
+    metadata:
+      labels:
+        app: sampleserver
+    spec:
+      terminationGracePeriodSeconds: 120
+      imagePullSecrets:
+      - name: gitlab-registry
+      containers:
+      - name: sampleserver
+        image: registry.sample.kr/sample/sampleserver:lastest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "1Gi"
+        env:
+        - name: MODE
+          valueFrom:
+            configMapKeyRef:
+              name: deployment
+              key: MODE
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 1
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 20"]

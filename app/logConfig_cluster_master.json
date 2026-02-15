@@ -1,0 +1,19 @@
+﻿{
+  "appenders": {
+    "master": {
+      "type": "file",
+      "filename": "SampleServer",
+      "maxLogSize": 10485760,
+      "backups": 336,
+      "pattern": "yyyy-MM-dd-hh.log",
+      "alwaysIncludePattern": true
+    },
+    "master_console": { "type": "console" }
+  },
+  "categories": {
+    "default": {
+      "appenders": [ "master", "master_console" ],
+      "level": "debug"
+    }
+  }
+}

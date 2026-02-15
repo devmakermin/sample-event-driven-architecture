@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleserver
+spec:
+  replicas: 15
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - worker1
+                    - worker2
+                    - worker3
+                    - worker4
+                    - worker5
+
+      containers:
+      - name: sampleserver
+        image: registry.sample.kr/sample/sampleserver:1.0.1
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "2Gi"

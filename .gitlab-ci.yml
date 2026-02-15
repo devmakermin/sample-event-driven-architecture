@@ -1,0 +1,45 @@
+image: docker:24.0.6
+
+services:
+   - name: docker:24.0.6-dind
+     command: [ "--tls=false" ]
+     variables:
+       HEALTHCHECK_TCP_PORT: "2375"
+
+variables:
+  DOCKER_HOST: tcp://docker:2375 
+  DOCKER_TLS_CERTDIR: ""
+  REGISTRY: registry.sample.kr
+  IMAGE_NAME: sample/sampleserver
+
+stages:
+  - push
+
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $REGISTRY
+  - apk update
+  - apk add --no-cache docker-cli jq curl
+
+push_dev:
+  stage: push
+  tags: 
+    - dind
+  script:
+    - export VERSION=$(jq -r .version package.json)-dev
+    - docker build --network=host -t $REGISTRY/$IMAGE_NAME:$VERSION -t $REGISTRY/$IMAGE_NAME:latest-dev .
+    - docker push $REGISTRY/$IMAGE_NAME:$VERSION
+    - docker push $REGISTRY/$IMAGE_NAME:latest-dev
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+
+push_main:
+  stage: push
+  tags: 
+    - dind
+  script:
+    - export VERSION=$(jq -r .version package.json)
+    - docker build --network=host -t $REGISTRY/$IMAGE_NAME:$VERSION -t $REGISTRY/$IMAGE_NAME:latest .
+    - docker push $REGISTRY/$IMAGE_NAME:$VERSION
+    - docker push $REGISTRY/$IMAGE_NAME:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
